@@ -1,0 +1,14 @@
+#package files
+package-lock.json
+
+#distribution folder
+dist/
+
+# jest coverage
+coverage
+
+# Enviroment variables
+.env
+
+# Node modules
+node_modules/
