@@ -13,6 +13,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/express": "5.0.1",
     "@types/node": "22.15.3",
     "rimraf": "6.0.1",
     "ts-node-dev": "2.0.0",
@@ -21,10 +22,14 @@
   },
   "eslintConfig": {
     "extends": [
-      "ts-standard"
+      "standard-with-typescript"
     ],
     "parserOptions": {
       "project": "./tsconfig.json"
     }
+  },
+  "dependencies": {
+    "env-var": "7.5.0",
+    "express": "5.1.0"
   }
 }
