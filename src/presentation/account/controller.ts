@@ -1,28 +1,114 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { CreateAccountDto } from '../../domain/dtos/account/create-account.dto'
+import { DeleteAccountDto } from '../../domain/dtos/account/delete-account.dto'
+import { GetAccountByIdDto } from '../../domain/dtos/account/get-account-by-id.dto'
+import { UpdateAccountDto } from '../../domain/dtos/account/update-account.dto'
+import { AccountError } from '../../domain/errors/account.error'
+import { HttpError } from '../../domain/errors/http.error'
+import MongoError from '../../domain/errors/mongo.error'
+import AccountRepository from '../../domain/repositories/account.repository'
 
 export default class AccountController {
-  public getAllAccounts = (_req: Request, res: Response): void => {
-    res.status(200).json({ message: 'Get All Accounts Controller endpoint' })
-    // TODO: Implementation to fetch all users from DB
+  constructor (
+    private readonly accountRepository: AccountRepository
+  ) {}
+
+  public getAllAccounts = (req: Request, res: Response, next: NextFunction): void => {
+    this.accountRepository.getAll()
+      .then(accounts => { res.json(accounts) })
+      .catch(err => {
+        if (err instanceof AccountError) return next(HttpError.badRequest(err.message))
+
+        if (err instanceof MongoError) return next(HttpError.internalServer(err.message))
+
+        return next(HttpError.internalServer('An unknown error occurred'))
+      })
   }
 
-  public getAccountById = (_req: Request, res: Response): void => {
-    res.status(200).json({ message: 'Get Account By Id Controller endpoint' })
-    // TODO: Implementation to fetch user by id from DB
+  public getAccountById = (req: Request, res: Response, next: NextFunction): void => {
+    const id = req.params.id
+
+    const [error, idValidated] = GetAccountByIdDto.create(id)
+
+    if (error) {
+      res.status(400).json({ error })
+      return
+    }
+
+    this.accountRepository.getById(idValidated!)
+      .then(account => { res.json(account) })
+      .catch(err => {
+        if (err instanceof AccountError) return next(HttpError.badRequest(err.message))
+
+        if (err instanceof MongoError) return next(HttpError.internalServer(err.message))
+
+        return next(HttpError.internalServer('An unknown error occurred'))
+      })
   }
 
-  public create = (_req: Request, res: Response): void => {
-    res.status(200).json({ message: 'Create Account Controller endpoint' })
-    // TODO: Implementation to create a new user in DB
+  public create = (req: Request, res: Response, next: NextFunction): void => {
+    const [error, accountDto] = CreateAccountDto.create(req.body)
+
+    if (error) {
+      res.status(400).json({ error })
+      return
+    }
+
+    this.accountRepository.create(accountDto!)
+      .then(account => { res.status(201).json(account) })
+      .catch(err => {
+        console.error(err)
+        if (err instanceof AccountError) return next(HttpError.badRequest(err.message))
+
+        if (err instanceof MongoError) return next(HttpError.internalServer(err.message))
+
+        return next(HttpError.internalServer('An unknown error occurred'))
+      })
   }
 
-  public update = (_req: Request, res: Response): void => {
-    res.status(200).json({ message: 'Update Account Controller endpoint' })
-    // TODO: Implementation to update a user in DB
+  public update = (req: Request, res: Response, next: NextFunction): void => {
+    const id = req.params.id
+
+    const dataToValidate = { id, ...req.body }
+
+    const [error, updateAccountDto] = UpdateAccountDto.create(dataToValidate)
+
+    if (error) {
+      res.status(400).json({ error })
+      return
+    }
+
+    this.accountRepository.updated(id, updateAccountDto!)
+      .then(account => { res.json(account) })
+      .catch(err => {
+        console.error(err)
+        if (err instanceof AccountError) return next(HttpError.badRequest(err.message))
+
+        if (err instanceof MongoError) return next(HttpError.internalServer(err.message))
+
+        return next(HttpError.internalServer('An unknown error occurred'))
+      })
   }
 
-  public delete = (_req: Request, res: Response): void => {
-    res.status(200).json({ message: 'Delete Account Controller endpoint' })
-    // TODO: Implementation to delete a user from DB
+  public delete = (req: Request, res: Response, next: NextFunction): void => {
+    const id = req.params.id
+
+    const [error, idValidated] = DeleteAccountDto.create(id)
+
+    if (error) {
+      res.status(400).json({ error })
+      return
+    }
+
+    this.accountRepository.delete(idValidated!)
+      .then(account => { res.json(account) })
+      .catch(err => {
+        console.error(err)
+        if (err instanceof AccountError) return next(HttpError.badRequest(err.message))
+
+        if (err instanceof MongoError) return next(HttpError.internalServer(err.message))
+
+        return next(HttpError.internalServer('An unknown error occurred'))
+      })
   }
 }

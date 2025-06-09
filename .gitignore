@@ -12,3 +12,6 @@ coverage
 
 # Node modules
 node_modules/
+
+# Mongo Database
+/mongodb
