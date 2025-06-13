@@ -26,7 +26,7 @@ export default class AccountController {
   }
 
   public getAccountById = (req: Request, res: Response, next: NextFunction): void => {
-    const id = req.params.id
+    const { id } = req.params
 
     const [error, idValidated] = GetAccountByIdDto.create(id)
 

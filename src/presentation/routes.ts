@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { AccountRoutes } from './account/routes'
 import { AuthRoutes } from './auth/routes'
 import { BalanceRoutes } from './balances/routes'
+import { PaymentMethodRoutes } from './payment-method/routes'
 import { TransactionRoutes } from './transactions/routes'
 import { UserRoutes } from './users/routes'
 
@@ -14,6 +15,7 @@ export class AppRoutes {
     router.use('/api/account', AccountRoutes.routes)
     router.use('/api/transaction', TransactionRoutes.routes)
     router.use('/api/balance', BalanceRoutes.routes)
+    router.use('/api/payment-method', PaymentMethodRoutes.routes)
 
     return router
   }
